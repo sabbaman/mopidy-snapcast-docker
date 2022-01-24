@@ -1,0 +1,36 @@
+version: '3'
+
+
+
+services:
+  server:
+    image: ghcr.io/lukashass/snapcast
+    restart: always
+    network_mode: bridge
+    ports:
+      - 1704:1704
+      - 1705:1705
+      - 1780:1780
+    # use `network_mode: host` for easy network discovery
+    volumes:
+      - fifo:/tmp/mopidyfifo
+      - ./config:/root/.config/snapserver
+      - ./snapserver.conf:/etc/snapserver.conf
+    command: snapserver
+  
+  mopidy:
+    image: sabba/mopidy
+    build:
+      context: ./mopidy
+      dockerfile: Dockerfile
+    restart: always
+    network_mode: bridge
+    ports:
+      - 6680:6680
+    # use `network_mode: host` for easy network discovery
+    volumes:
+      - fifo:/tmp/snapfifo
+
+
+volumes:
+  fifo:
